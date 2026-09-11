@@ -27,6 +27,12 @@ const fallbackMovies: Movie[] = [
   { imdbID: 'tt2975590', Title: 'Batman v Superman: Dawn of Justice', Year: '2016', Poster: 'https://image.tmdb.org/t/p/w500/5UsK3grJvtQrtzEgqNlDljJW96w.jpg', Type: 'movie', Genre: 'Action, Adventure, Sci-Fi', Runtime: '2h 32m', Director: 'Zack Snyder', imdbRating: '6.4', Plot: 'Fearing the actions of a god-like superhero left unchecked, Batman takes on Superman.' },
   { imdbID: 'tt1345836', Title: 'The Dark Knight Rises', Year: '2012', Poster: 'https://image.tmdb.org/t/p/w500/hr0L2aueqlP2BYUblTTjmtn0hw4.jpg', Type: 'movie', Genre: 'Action, Crime, Drama', Runtime: '2h 44m', Director: 'Christopher Nolan', imdbRating: '8.4', Plot: 'Eight years after the Joker\'s reign of chaos, Batman is forced to return from his imposed exile.' },
   { imdbID: 'tt0096895', Title: 'Batman', Year: '1989', Poster: 'https://image.tmdb.org/t/p/w500/4GxlWMF6R1dE3h8c9M8d3R0D3S6.jpg', Type: 'movie', Genre: 'Action, Crime', Runtime: '2h 6m', Director: 'Tim Burton', imdbRating: '7.5', Plot: 'The Dark Knight of Gotham City begins his fight against a bizarre criminal called the Joker.' },
+  { imdbID: 'tt0372784', Title: 'Batman Begins', Year: '2005', Poster: 'https://image.tmdb.org/t/p/w500/8RW2runwLhKHxwjGfZJZxOVL6hX.jpg', Type: 'movie', Genre: 'Action, Crime, Drama', Runtime: '2h 20m', Director: 'Christopher Nolan', imdbRating: '8.2', Plot: 'After training with his mentor, Batman begins his fight to free crime-ridden Gotham City from corruption.' },
+  { imdbID: 'tt0103776', Title: 'Batman Returns', Year: '1992', Poster: 'https://image.tmdb.org/t/p/w500/jKBjeXM7iBBV9UkUcOXx3m7FSHY.jpg', Type: 'movie', Genre: 'Action, Crime, Fantasy', Runtime: '2h 6m', Director: 'Tim Burton', imdbRating: '7.1', Plot: 'Batman battles a deformed man calling himself the Penguin while also facing a former employee who becomes Catwoman.' },
+  { imdbID: 'tt0112462', Title: 'Batman Forever', Year: '1995', Poster: 'https://image.tmdb.org/t/p/w500/5lWbYV2e1QKk7YJkGZx6d4gM6t.jpg', Type: 'movie', Genre: 'Action, Adventure', Runtime: '2h 1m', Director: 'Joel Schumacher', imdbRating: '5.4', Plot: 'Batman must save Gotham from Two-Face and the Riddler while taking on a new partner.' },
+  { imdbID: 'tt0118688', Title: 'Batman & Robin', Year: '1997', Poster: 'https://image.tmdb.org/t/p/w500/cGRDufDDSrFrv7VI4YnmWnLk2G.jpg', Type: 'movie', Genre: 'Action, Crime, Fantasy', Runtime: '2h 5m', Director: 'Joel Schumacher', imdbRating: '3.8', Plot: 'Batman and Robin try to keep their relationship together while stopping Mr. Freeze and Poison Ivy.' },
+  { imdbID: 'tt4116284', Title: 'The Lego Batman Movie', Year: '2017', Poster: 'https://image.tmdb.org/t/p/w500/snGwr2gag4Fcg6JDcQ8aX4mQmG.jpg', Type: 'movie', Genre: 'Animation, Action, Comedy', Runtime: '1h 44m', Director: 'Chris McKay', imdbRating: '7.3', Plot: 'A cooler-than-ever Bruce Wayne must deal with the usual suspects as they plan to rule Gotham City.' },
+  { imdbID: 'tt1569923', Title: 'Batman: Under the Red Hood', Year: '2010', Poster: 'N/A', Type: 'movie', Genre: 'Animation, Action', Runtime: '1h 15m', Director: 'Brandon Vietti', imdbRating: '8.0', Plot: 'Batman faces a mysterious vigilante who uses lethal methods to fight crime in Gotham.' },
 ]
 
 const apiKey = import.meta.env.VITE_OMDB_API_KEY as string | undefined
@@ -51,9 +57,12 @@ function App() {
     if (!apiKey) { setMovies(fallbackMovies.filter(movie => `${movie.Title} ${movie.Genre} ${movie.Director}`.toLowerCase().includes(cleanTerm.toLowerCase()))); return }
     setLoading(true)
     try {
-      const response = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(cleanTerm)}`)
-      const data = await response.json() as { Response: string; Search?: Movie[] }
-      setMovies(data.Response === 'True' ? data.Search || [] : [])
+      const firstResponse = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(cleanTerm)}&page=1`)
+      const firstPage = await firstResponse.json() as { Response: string; Search?: Movie[]; totalResults?: string }
+      if (firstPage.Response !== 'True') { setMovies([]); return }
+      const totalPages = Math.min(10, Math.ceil(Number(firstPage.totalResults || firstPage.Search?.length || 0) / 10))
+      const remainingPages = await Promise.all(Array.from({ length: totalPages - 1 }, (_, index) => fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(cleanTerm)}&page=${index + 2}`).then(response => response.json() as Promise<{ Search?: Movie[] }>)))
+      setMovies([...(firstPage.Search || []), ...remainingPages.flatMap(page => page.Search || [])])
     } catch { setMovies([]) } finally { setLoading(false) }
   }
   const openMovie = async (movie: Movie) => {
