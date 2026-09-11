@@ -25,3 +25,7 @@ VITE_OMDB_API_KEY=your_api_key
 ```
 
 Never commit `.env`. It is excluded by `.gitignore`.
+
+## Enable search on GitHub Pages
+
+In the repository, open **Settings > Secrets and variables > Actions**, create a repository secret named `VITE_OMDB_API_KEY`, and paste in the OMDb key. The Pages workflow injects it only during the production build.
