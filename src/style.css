@@ -55,9 +55,10 @@ h2 { margin: 0; font-size: clamp(30px, 3.2vw, 46px); line-height: 1; letter-spac
 .movie-meta { padding-top: 15px; }
 .movie-meta h3 { margin-bottom: 5px; font-size: 17px; line-height: 1.18; letter-spacing: -.55px; font-weight: 800; }
 .card-director { min-height: 18px; margin: 0 0 9px; overflow: hidden; color: #858b96; font-size: 12px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
-.movie-meta div { color: #555e6d; font: 700 12px 'Manrope', sans-serif; letter-spacing: 0; }
-.dot { padding: 0 7px; color: #c0c1bf; }
-.rating { float: right; color: #a46326; font-weight: 800; }
+.movie-meta div { display: flex; align-items: center; gap: 8px; color: #697180; font: 700 11px 'Manrope', sans-serif; letter-spacing: 0; }
+.movie-meta div > span:first-child, .movie-meta div > span:nth-child(3) { padding: 5px 8px; background: #ebe8e1; border-radius: 5px; }
+.dot { display: none; }
+.rating { margin-left: auto; padding: 5px 8px; color: #9a5b1f; background: #f7e5bd; border-radius: 5px; font-weight: 800; }
 .empty { min-height: 230px; padding-top: 45px; border-top: 1px solid #d2cec4; }
 .empty h3 { font-size: 24px; }
 .empty p { color: #777d88; font-size: 13px; }
