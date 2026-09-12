@@ -34,6 +34,8 @@ function App() {
   const [type, setType] = useState('')
   const [year, setYear] = useState('')
   const [loading, setLoading] = useState(false)
+  const [watchlist, setWatchlist] = useState<Movie[]>([])
+  const [profileOpen, setProfileOpen] = useState(false)
 
   useEffect(() => {
     if (!omdbApiKey) return
@@ -60,6 +62,12 @@ function App() {
     setSelected(null)
     setQuery('')
     setMovies(fallbackMovies)
+  }
+
+  const toggleWatchlist = (movie: Movie) => {
+    setWatchlist(current => current.some(saved => saved.imdbID === movie.imdbID)
+      ? current.filter(saved => saved.imdbID !== movie.imdbID)
+      : [...current, movie])
   }
 
   const search = async (term: string) => {
@@ -119,9 +127,12 @@ function App() {
       </a>
       <nav>
         <a className="active" href="#discover">Discover</a>
-        <a href="#watchlist">My list <span className="nav-count">{movies.length}</span></a>
+        <a href="#watchlist">My list <span className="nav-count">{watchlist.length}</span></a>
       </nav>
-      <button className="profile" aria-label="Open profile">JD</button>
+      <div className="profile-wrap">
+        <button className="profile" aria-label="Open profile" aria-expanded={profileOpen} onClick={() => setProfileOpen(open => !open)}>JD</button>
+        {profileOpen && <div className="profile-panel"><strong>Jordan Davis</strong><span>Film enthusiast</span><small>{watchlist.length} saved {watchlist.length === 1 ? 'title' : 'titles'}</small></div>}
+      </div>
     </header>
 
     <main>
@@ -196,7 +207,7 @@ function App() {
             ) : visibleMovies.length ? (
               <div className="movie-grid">
                 {visibleMovies.map(movie => (
-                  <MovieCard key={movie.imdbID} movie={movie} onSelect={() => void openMovie(movie)} />
+                  <MovieCard key={movie.imdbID} movie={movie} onSelect={() => void openMovie(movie)} isSaved={watchlist.some(saved => saved.imdbID === movie.imdbID)} onToggleList={() => toggleWatchlist(movie)} />
                 ))}
               </div>
             ) : (
@@ -206,6 +217,16 @@ function App() {
                 <button className="text-button" onClick={reset}>Back to collection</button>
               </div>
             )}
+          </section>
+          <section className="watchlist-section" id="watchlist">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">YOUR COLLECTION</p>
+                <h2>My list</h2>
+              </div>
+              <span className="list-total">{watchlist.length} {watchlist.length === 1 ? 'title' : 'titles'}</span>
+            </div>
+            {watchlist.length ? <div className="saved-list">{watchlist.map(movie => <article className="saved-item" key={movie.imdbID}><div><strong>{movie.Title}</strong><span>{movie.Year} · {movie.Genre?.split(',')[0] || 'Cinema'}</span></div><button onClick={() => toggleWatchlist(movie)}>Remove</button></article>)}</div> : <p className="watchlist-empty">Save a film from the catalog and it will appear here.</p>}
           </section>
         </>
       )}
@@ -227,12 +248,12 @@ function App() {
   </>
 }
 
-function MovieCard({ movie, onSelect }: { movie: Movie; onSelect: () => void }) {
+function MovieCard({ movie, onSelect, isSaved, onToggleList }: { movie: Movie; onSelect: () => void; isSaved: boolean; onToggleList: () => void }) {
   return <article className="movie-card" onClick={onSelect}>
     <div className="poster-wrap">
       <img src={posterUrl(movie)} alt={`${movie.Title} poster`} loading="lazy" onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackPoster }} />
       <span className="type-badge">{movie.Type === 'series' ? 'Series' : 'Film'}</span>
-      <button className="add-button" aria-label={`Add ${movie.Title} to list`} onClick={event => event.stopPropagation()}>+</button>
+      <button className={`add-button${isSaved ? ' saved' : ''}`} aria-label={`${isSaved ? 'Remove' : 'Add'} ${movie.Title} ${isSaved ? 'from' : 'to'} list`} onClick={event => { event.stopPropagation(); onToggleList() }}>{isSaved ? '✓' : '+'}</button>
     </div>
     <div className="movie-meta">
       <h3>{movie.Title}</h3>
