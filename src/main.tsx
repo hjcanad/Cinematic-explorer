@@ -236,6 +236,7 @@ function MovieCard({ movie, onSelect }: { movie: Movie; onSelect: () => void }) 
     </div>
     <div className="movie-meta">
       <h3>{movie.Title}</h3>
+      <p className="card-director">{movie.Director || 'Director details available'}</p>
       <div>
         <span>{movie.Year}</span>
         <span className="dot">/</span>
