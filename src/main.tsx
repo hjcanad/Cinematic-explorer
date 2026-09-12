@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { createRoot } from 'react-dom/client'
 import { fallbackPoster, fetchMovieDetails, fetchMovies, posterUrl, type Movie } from './api'
@@ -34,6 +34,20 @@ function App() {
   const [type, setType] = useState('')
   const [year, setYear] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!omdbApiKey) return
+
+    let active = true
+    void Promise.all(fallbackMovies.map(movie => fetchMovieDetails(movie)))
+      .then(details => {
+        if (active) setMovies(details)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   const visibleMovies = useMemo(
     () => [...movies]
