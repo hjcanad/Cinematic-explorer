@@ -206,8 +206,8 @@ function App() {
               <div className="empty"><h3>Searching the archive...</h3></div>
             ) : visibleMovies.length ? (
               <div className="movie-grid">
-                {visibleMovies.map(movie => (
-                  <MovieCard key={movie.imdbID} movie={movie} onSelect={() => void openMovie(movie)} isSaved={watchlist.some(saved => saved.imdbID === movie.imdbID)} onToggleList={() => toggleWatchlist(movie)} />
+                {visibleMovies.map((movie, index) => (
+                  <MovieCard key={movie.imdbID} movie={movie} priority={index < 4} onSelect={() => void openMovie(movie)} isSaved={watchlist.some(saved => saved.imdbID === movie.imdbID)} onToggleList={() => toggleWatchlist(movie)} />
                 ))}
               </div>
             ) : (
@@ -248,10 +248,10 @@ function App() {
   </>
 }
 
-function MovieCard({ movie, onSelect, isSaved, onToggleList }: { movie: Movie; onSelect: () => void; isSaved: boolean; onToggleList: () => void }) {
+function MovieCard({ movie, priority, onSelect, isSaved, onToggleList }: { movie: Movie; priority: boolean; onSelect: () => void; isSaved: boolean; onToggleList: () => void }) {
   return <article className="movie-card" onClick={onSelect}>
     <div className="poster-wrap">
-      <img src={posterUrl(movie)} alt={`${movie.Title} poster`} loading="lazy" onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackPoster }} />
+      <img src={posterUrl(movie)} alt={`${movie.Title} poster`} loading={priority ? 'eager' : 'lazy'} onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackPoster }} />
       <span className="type-badge">{movie.Type === 'series' ? 'Series' : 'Film'}</span>
       <button className={`add-button${isSaved ? ' saved' : ''}`} aria-label={`${isSaved ? 'Remove' : 'Add'} ${movie.Title} ${isSaved ? 'from' : 'to'} list`} onClick={event => { event.stopPropagation(); onToggleList() }}>{isSaved ? '✓' : '+'}</button>
     </div>
