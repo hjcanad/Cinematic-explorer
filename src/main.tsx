@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { createRoot } from 'react-dom/client'
-import { fetchMovieDetails, fetchMovies, posterUrl, type Movie } from './api'
+import { fallbackPoster, fetchMovieDetails, fetchMovies, posterUrl, type Movie } from './api'
 import './style.css'
 
 const fallbackMovies: Movie[] = [
@@ -216,7 +216,7 @@ function App() {
 function MovieCard({ movie, onSelect }: { movie: Movie; onSelect: () => void }) {
   return <article className="movie-card" onClick={onSelect}>
     <div className="poster-wrap">
-      <img src={posterUrl(movie)} alt={`${movie.Title} poster`} loading="lazy" />
+      <img src={posterUrl(movie)} alt={`${movie.Title} poster`} loading="lazy" onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackPoster }} />
       <span className="type-badge">{movie.Type === 'series' ? 'Series' : 'Film'}</span>
       <button className="add-button" aria-label={`Add ${movie.Title} to list`} onClick={event => event.stopPropagation()}>+</button>
     </div>
@@ -239,7 +239,7 @@ function MovieDetail({ movie, onBack }: { movie: Movie; onBack: () => void }) {
     <button className="back-button" onClick={onBack}><span>←</span> Back to discover</button>
     <div className="detail-layout">
       <div className="detail-poster">
-        <img src={posterUrl(movie)} alt={`${movie.Title} poster`} />
+        <img src={posterUrl(movie)} alt={`${movie.Title} poster`} onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackPoster }} />
       </div>
       <div className="detail-copy">
         <p className="eyebrow">{movie.Type === 'series' ? 'SERIES' : 'FEATURE FILM'} / {movie.Year}</p>
