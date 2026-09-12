@@ -147,7 +147,7 @@ function App() {
               <p className="hero-intro">A quieter way to discover cinema. Search the archive, follow your curiosity, and keep the films that stay with you.</p>
               <form className="search-form" onSubmit={submitSearch}>
                 <span className="search-icon">/</span>
-                <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search titles, directors, genres..." aria-label="Search movies" />
+                <input id="movie-search" name="movie-search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search titles, directors, genres..." aria-label="Search movies" />
                 <button type="submit">Search</button>
               </form>
               <div className="quick-search">
@@ -179,7 +179,7 @@ function App() {
               <div className="catalog-controls">
                 <label className="sort-control">
                   Type
-                  <select value={type} onChange={event => setType(event.target.value)}>
+                  <select id="movie-type" name="movie-type" value={type} onChange={event => setType(event.target.value)}>
                     <option value="">All types</option>
                     <option value="movie">Movies</option>
                     <option value="series">Series</option>
@@ -187,14 +187,14 @@ function App() {
                 </label>
                 <label className="sort-control">
                   Year
-                  <select value={year} onChange={event => setYear(event.target.value)}>
+                  <select id="release-year" name="release-year" value={year} onChange={event => setYear(event.target.value)}>
                     <option value="">All years</option>
                     {Array.from({ length: 47 }, (_, index) => 2026 - index).map(optionYear => <option key={optionYear} value={optionYear}>{optionYear}</option>)}
                   </select>
                 </label>
                 <label className="sort-control">
                   Sort
-                  <select value={sort} onChange={event => setSort(event.target.value)}>
+                  <select id="sort-order" name="sort-order" value={sort} onChange={event => setSort(event.target.value)}>
                     <option value="featured">Featured</option>
                     <option value="year">Newest first</option>
                   </select>
